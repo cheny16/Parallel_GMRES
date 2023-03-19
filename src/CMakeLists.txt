@@ -21,10 +21,17 @@ if(LAPACK_FOUND AND BLAS_FOUND)
     message(STATUS BLAS found: ${BLAS_INCLUDE_DIRS})
 endif()
 
+# include
 target_include_directories(Matrix PRIVATE ${HEADER_DIR} ${MPI_CXX_INCLUDE_PATH} ${BLAS_INCLUDE_DIRS})
 target_include_directories(ParaQR PRIVATE ${MPI_CXX_INCLUDE_PATH}
                                   PUBLIC ${HEADER_DIR} ${BLAS_INCLUDE_DIRS})
 target_include_directories(GMRES  PRIVATE ${MPI_CXX_INCLUDE_PATH}
                                   PUBLIC ${HEADER_DIR} ${BLAS_INCLUDE_DIRS})
-# target_link_libraries(ParaQR PUBLIC Matrix)
-# target_link_libraries(GMRES PUBLIC Matrix ParaQR)
+
+# link
+target_link_libraries(ParaQR PUBLIC Matrix)
+target_link_libraries(GMRES PUBLIC Matrix ParaQR)
+
+# dependencies
+add_dependencies(ParaQR Matrix)
+add_dependencies(GMRES Matrix ParaQR)
