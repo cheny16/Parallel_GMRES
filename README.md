@@ -53,3 +53,7 @@ For example:
 ```bash
 mpirun -np 2 ./ParallelGMRES --input ./datas/saylr1.mtx --tol 0.0001 --maxiter 20 --timing
 ```
+
+## TODO
+- [ ] Preconditioner
+- [ ] Restarting
