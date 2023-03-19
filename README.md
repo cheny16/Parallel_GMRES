@@ -21,3 +21,35 @@ $Ax=b,\ where\ A\ is\ square\ matrix,\ given\ an\ initial\ guess\ x^{(0)}, tol\ 
 14. $\ \ \ \ \ \ \ \ Update\ residual\ r_k(k)=abs(b-Ax^*)$
 15. $\ \ \ \ \ \ \ \ If\ residual < \epsilon\ then:\ break$
 16. $End\ for$
+
+## How to Build 
+### Requirements
+- GCC >= 9.3.0
+- CMake >= 3.15
+- MPI (like OpenMPI)
+- OpenBLAS >= 0.3.0
+- Boost >= 1.32.0 (with Program-Options module)
+
+### Buiding
+```bash
+$ git clone https://github.com/cheny16/Parallel_GMRES.git
+$ cd Parallel_GMRES
+$ git checkout main
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+## Usage
+```bash
+# in build/
+$ mpirun -np <num_of_procs> ./ParallelGMRES --help    <display helping messages> \
+                                            --input   <input matrix file (.mtx)> \
+                                            --tol     <convergence tolerance>    \
+                                            --maxiter <max iterations>           \
+                                            --timing  <display timing>
+```
+For example:
+```bash
+mpirun -np 2 ./ParallelGMRES --input ./datas/saylr1.mtx --tol 0.0001 --maxiter 20 --timing
+```
