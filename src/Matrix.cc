@@ -66,8 +66,8 @@ Matrix read_matrix(const std::string filename, int & rows, int & cols) {
             mat[i][j] = value;
         }
     }
-
     file.close();
+    return mat;
 }
 
 /**
