@@ -22,6 +22,10 @@ $Ax=b,\ where\ A\ is\ square\ matrix,\ given\ an\ initial\ guess\ x^{(0)}, tol\ 
 15. $\ \ \ \ \ \ \ \ If\ residual < \epsilon\ then:\ break$
 16. $End\ for$
 
+## Parallel Parts
+- [ ] Parallel Arnoldi
+- [x] Parallel QR
+
 ## How to Build 
 ### Requirements
 - GCC >= 9.3.0
