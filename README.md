@@ -1,4 +1,4 @@
-# Parallel_GMRES
+# Parallel GMRES
 Parallel GMRES for solving sparse linear systems $Ax=b$
 
 ## Algorithm (GMRES with Householder QR)
