@@ -6,13 +6,13 @@ set(SOURCE_DIR src)
 # Project name and other infomations
 project(${PROJECT_NAME} VERSION 1.0)
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O0 -g -lblas")
-
 # C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
 
 # Find BLAS-LAPACK
 find_package(BLAS)
