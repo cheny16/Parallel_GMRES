@@ -26,6 +26,29 @@ $Ax=b,\ where\ A\ is\ square\ matrix,\ given\ an\ initial\ guess\ x^{(0)}, tol\ 
 - [ ] Parallel Arnoldi
 - [x] Parallel QR
 
+## Modules / Routines
+- Matrix
+  | Routines      | Brief           |
+  | --------      | -----           |
+  |allocate_matrix| Allocate matrix |
+  |dealloc_matrix | Free matrix     |
+  |read_matrix    | Read matrix from SuiteSparse Matrix file (.mtx) |
+  |print_matrix   | Print matrix to stdout |
+  |MMmultiply     | Matrix matrix multiplication |
+  |MVmultiply     | Matrix vector multiplication |
+- ParaQR
+  | Routines      | Brief           |
+  | --------      | -----           |
+  |GenHHMatrix    | Generate Householder reflection matrix |
+  |QRDecomp       | QR Decomposition with Householder reflections |
+- GMRES
+  | Routines      | Brief           |
+  | --------      | -----           |
+  |Arnoldi        | Arnoldi iterations (MGS) |
+  |BackSub        | Back substitution for solving $Rx=Q^Tb$ |
+  |CalResidual    | Calculate residual vector of the current sulotion |
+  |GMRES          | GMRES iteration with Householder QR |
+
 ## How to Build 
 ### Requirements
 - GCC >= 9.3.0
