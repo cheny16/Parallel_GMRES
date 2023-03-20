@@ -86,10 +86,10 @@ void CalResidual(const Matrix A, const Vector B, const Vector X, Vector Res, con
  * @param comm MPI_Comm
  */
 void GMRES(const Matrix A, const Vector B, Vector X, 
-           const int rows, const float tol, const int maxiter, MPI_Comm comm) {
-    float residual[rows]{0};
+           const int rows, const float tol, const int maxiter, MPI_Comm comm, bool verbose) {
+    float residual[rows]{0};                        /* Residual values */
     // Initial residual of the initial guess of x0
-    Vector V = MVmultiply(A, X, rows, rows, rows); /* Initial residual */
+    Vector V = MVmultiply(A, X, rows, rows, rows);  /* Initial residual */
     CalResidual(A, B, X, V, rows);
 
     float normR0 = cblas_snrm2(rows, V, 1);
@@ -101,7 +101,8 @@ void GMRES(const Matrix A, const Vector B, Vector X,
     }
     Matrix H = allocate_matrix(rows+1, rows);
     // Main GMRES iteration
-    for (auto iter = 0; iter < maxiter; iter++) {
+    auto iter = 0;
+    for ( ; iter < maxiter; iter++) {
         // 1. Arnoldi part
         Vector W = Arnoldi(A, V, H, rows, iter);
         // h(j+1,j)=norm2(w)
@@ -134,11 +135,17 @@ void GMRES(const Matrix A, const Vector B, Vector X,
         float normV = cblas_snrm2(rows, V, 1);
         residual[iter] = normV;
 
+        if (verbose) {
+            std::cerr << "Residual in " << iter << " iter is: " << normV << "\n";
+        }
+
         // 5. Check convergence
-        if (normV < tol) {
+        if (normV <= tol) {
             std::cerr << "Convergence in " << iter << " steps\n";
             break;
         }
     }
-    std::cerr << "No convergence after max iter\n";
+    if (iter == maxiter) {
+        std::cerr << "No convergence after max iter\n";
+    }
 }
