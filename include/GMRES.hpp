@@ -19,6 +19,6 @@ void BackSub(const Matrix R, const Matrix Q, const Vector B, Vector X, const int
 void CalResidual(const Matrix A, const Vector B, const Vector X, Vector R, const int rows);
 
 void GMRES(const Matrix A, const Vector B, Vector X, 
-           const int rows, const float tol, const int maxiter, MPI_Comm comm);
+           const int rows, const float tol, const int maxiter, MPI_Comm comm, bool verbose=false);
 
 #endif /* GMRES_HPP */
