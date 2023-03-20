@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
     MPI_Bcast(&matA[0][0], rows*rows, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // GMRES
-    GMRES(matA, vecB, X, rows, tol, maxiter, MPI_COMM_WORLD);
+    GMRES(matA, vecB, X, rows, tol, maxiter, MPI_COMM_WORLD, verbose);
 
     return 0;
 }
