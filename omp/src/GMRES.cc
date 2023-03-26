@@ -32,7 +32,7 @@ void Arnoldi(const Matrix A, Matrix v, Matrix H,
              const int rows, const int iter, const int maxiter) {
     // Calculate w = A * v[iter] - Krylov vector
     Vector w = AllocVector(rows);
-    cblas_dgemv(CblasColMajor, CblasNoTrans, rows, rows, 1.0, A, rows, &v[iter * rows], 1, 0.0, w, 1);
+    cblas_dgemv(CblasRowMajor, CblasNoTrans, rows, rows, 1.0, A, rows, &v[iter * rows], 1, 0.0, w, 1);
 
 #ifdef _OPENMP
     #pragma omp parallel for
@@ -79,12 +79,12 @@ void SolveLSP(const Matrix H, const Matrix v, const Vector e, Vector x,
         // #pragma omp parallel for reduction (+:sum)
         #pragma omp simd reduction (+:sum)
 #endif 
-        for (auto j = i + 1; j < iter; j++) {
+        for (auto j = i + 1; j <= iter; j++) {
             sum += H[i * maxiter + j] * y[j];
         }
         y[i] = (e[i] - sum) / H[i * maxiter + i];
     }
-    // PrintMatrix(y, iter+1, 1);
+
     // solve x = x0 + v*y
     // Size of v: rows * (iter+1)
     cblas_dgemv(CblasColMajor, CblasNoTrans, rows, iter + 1, 1.0, v, rows, y, 1, 1.0, x, 1);
@@ -109,7 +109,8 @@ void CalResidualVec(const Matrix A, const Vector b, const Vector x, Vector r, co
     #pragma omp parallel for
 #endif    
     for (auto i = 0; i < rows; i++) {
-        r[i] = fabs(b[i] - r[i]);
+        // r[i] = fabs(b[i] - r[i]);
+        r[i] = b[i] - r[i];
     }
 }
 
