@@ -18,6 +18,7 @@
 #include <chrono>
 #include <numeric>
 #include <cblas.h>
+#include <chrono>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -70,34 +71,54 @@ int main(int argc, char **argv) {
         std::cerr << "Error: " << e.what() << "\n";
         return -1;
     }
+
+#ifdef _OPENMP
+    #pragma omp parallel
+    if (omp_get_thread_num() == 0 && verbose) {
+        std::cerr << "Number of threads is: " << omp_get_num_threads() << "\n";
+    }
+#endif
     
     int rows;               /* Rows */
     int cols;               /* Cols */
     Matrix A = nullptr;     /* Matrix A */
 
+    auto begin_ = std::chrono::high_resolution_clock::now();
+
     // Read matrix from file
     A = ReadMatrix(inputFile, rows, cols);
 
-    if (verbose) {
-        std::cerr << "Matrix A:\n";
-        PrintMatrix(A, rows, rows);
-    }
+    // if (verbose) {
+    //     std::cerr << "\nMatrix A:\n";
+    //     PrintMatrix(A, rows, rows);
+    // }
 
     Vector b = AllocVector(rows);     /* Vector b */
+    Vector b0= AllocVector(rows);
     Vector x = AllocVector(rows);     /* Initial guess of X (x0) */
+
 #ifdef _OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for simd
 #endif
     for (auto i = 0; i < rows; i++) {
-        b[i] = 1.0f;
-        x[i] = 0.0f;
+        b0[i] = 1.0f;
     }
+
+    cblas_dgemv(CblasRowMajor, CblasNoTrans, rows, rows, 1.0, A, rows, b0, 1, 0.0, b, 1);
 
     // Call GMRES
     GMRES(A, b, x, rows, tol, maxiter, verbose);
 
-    std::cerr << "Solution:\n";
-    PrintMatrix(x, rows, 1);
+    auto end_ = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - begin_);
+
+    if (timing) {
+        std::cerr << "\nTime used: " << duration.count() << " milliseconds\n";
+    }
+
+    for (auto i = 0; i < rows; i++) {
+        std::cout << std::setprecision(10) << x[i] << "\n";
+    }
 
     return 0;
 }

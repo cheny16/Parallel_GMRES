@@ -33,7 +33,7 @@ Matrix AllocMatrix(const int rows, const int cols) {
         exit(EXIT_FAILURE);
     }
 #ifdef _OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for simd
 #endif
     for (auto i = 0; i < rows*cols; i++) {
         mat[i] = 0.0f;
@@ -100,7 +100,7 @@ Matrix AllocVector(const int rows) {
         exit(EXIT_FAILURE);
     }
 #ifdef _OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for simd
 #endif
     for (auto i = 0; i < rows; i++) {
         vec[i] = 0.0f;

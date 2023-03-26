@@ -74,16 +74,20 @@ void SolveLSP(const Matrix H, const Matrix v, const Vector e, Vector x,
     // The rest lines
     for (auto i = iter - 1; i >= 0; i--) {
         double sum = 0.0;
+
+#ifdef _OPENMP
+        // #pragma omp parallel for reduction (+:sum)
+        #pragma omp simd reduction (+:sum)
+#endif 
         for (auto j = i + 1; j < iter; j++) {
             sum += H[i * maxiter + j] * y[j];
         }
         y[i] = (e[i] - sum) / H[i * maxiter + i];
     }
-    std::cerr << "y:\n";
-    PrintMatrix(y, iter+1, 1);
+    // PrintMatrix(y, iter+1, 1);
     // solve x = x0 + v*y
     // Size of v: rows * (iter+1)
-    cblas_dgemv(CblasColMajor, CblasNoTrans, rows, iter + 1, 1.0, v, iter + 1, y, 1, 1.0, x, 1);
+    cblas_dgemv(CblasColMajor, CblasNoTrans, rows, iter + 1, 1.0, v, rows, y, 1, 1.0, x, 1);
 }
 
 /**
@@ -140,7 +144,7 @@ void GMRES(const Matrix A, const Vector b, Vector x,
     e[0] = beta;
 
     if (verbose) {
-        std::cerr << "Residual in 0 iter is: " << residuals[0] << "\n";
+        std::cerr << "\nResidual before iterations is: " << residuals[0] << "\n";
     }
 
     Matrix H = AllocMatrix(maxiter+1, maxiter);   /* Hessenberg matrix */
@@ -158,42 +162,22 @@ void GMRES(const Matrix A, const Vector b, Vector x,
     // Main GMRES iteration
     auto iter = 0;
     for ( ; iter < maxiter; iter++) {
-        // // Copy r to v
-        // cblas_dcopy(rows, r, 1, &v[iter * rows], 1);
-        // // Scale v
-        // cblas_dscal(rows, 1.0 / beta, &v[iter * rows], 1);
-        std::cerr << "\niter: " << iter << "\n";
         // 1. Arnoldi part
         Arnoldi(A, v, H, rows, iter, maxiter);/* New Arnoldi vector for next iter */
         
         // 2. Givens rotations
         // Apply old rotationer to the j-th column
-
-        // std::cerr << "H: (after Arnoldi and before rotate)\n";
-        // PrintMatrix(H, maxiter+1, maxiter);
-
         for (auto j = 0; j < iter; j++) {
             GivensRotate(c[j], s[j], &H[j * maxiter + iter], &H[(j+1) * maxiter + iter]);
         }
-        
-        // std::cerr << "H: (after rotate and before eli)\n";
-        // PrintMatrix(H, maxiter+1, maxiter);
 
         // Generate new Givens rotator
         GenGivensRotator(H[iter * maxiter + iter], H[(iter + 1) * maxiter + iter], &c[iter], &s[iter]);
 
-        // std::cerr << "c_new: " << c[iter] << " , s_new: " << s[iter] << "\n";
-
         // Apply Givens rotator to res_vals (update residual)
-        // GivensRotate(c[iter], s[iter], &H[iter * maxiter + iter], &H[(iter + 1) * maxiter + iter]);
-        GivensRotate(c[iter], s[iter], &e[iter], &e[iter + 1]);
-
         H[iter * maxiter + iter] = c[iter] * H[iter * maxiter + iter] + \
                                    s[iter] * H[(iter + 1) * maxiter + iter];
         H[(iter + 1) * maxiter + iter] = 0.0;
-
-        // std::cerr << "H: (after eli)\n";
-        // PrintMatrix(H, maxiter+1, maxiter);
 
         // Update the residual
         e[iter + 1] = -s[iter] * e[iter];
@@ -208,13 +192,7 @@ void GMRES(const Matrix A, const Vector b, Vector x,
 
         // 3. Check for convergence
         if (res_value <= tol) {
-            if (verbose) std::cerr << "Convergence in " << iter+1 << " steps\n";
-            std::cerr << "H: (after Convergence)\n";
-            PrintMatrix(H, maxiter+1, maxiter);
-            std::cerr << "v: (after Convergence)\n";
-            PrintMatrix(v, rows, maxiter+1);
-            std::cerr << "e: (after Convergence)\n";
-            PrintMatrix(e, maxiter+1, 1);
+            if (verbose) std::cerr << "\nConvergence in " << iter+1 << " steps\n";
 
             // 4. Solve the upper triangular linear system
             SolveLSP(H, v, e, x, rows, iter, maxiter);
@@ -225,7 +203,7 @@ void GMRES(const Matrix A, const Vector b, Vector x,
     } // Main GMRES iteration
 
     if (iter >= maxiter) {
-        std::cerr << "No convergence after max iter\n";
+        std::cerr << "\nNo convergence after max iter\n";
     }
 
     FreeMatrix(H); FreeMatrix(v);
