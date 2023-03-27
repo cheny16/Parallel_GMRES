@@ -10,12 +10,19 @@
 #include "../include/Matrix.hpp"
 #include "../include/Givens.hpp"
 
-#include <cblas.h>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
+
+#ifdef USE_MKL
+    #include <mkl.h>
+    #include <mkl_cblas.h>
+#else
+    #include <cblas.h>
+#endif
 
 #ifdef _OPENMP
-#include <omp.h>
+    #include <omp.h>
 #endif
 
 /**
@@ -190,6 +197,7 @@ void GMRES(const Matrix A, const Vector b, Vector x,
         if (verbose) {
             std::cerr << "Residual in " << iter+1 << " iter is: " << res_value << "\n";
         }
+        std::cout << iter + 1 << " " << std::setprecision(10) << res_value << "\n";
 
         // 3. Check for convergence
         if (res_value <= tol) {

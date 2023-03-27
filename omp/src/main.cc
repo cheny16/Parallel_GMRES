@@ -17,11 +17,17 @@
 #include <random>
 #include <chrono>
 #include <numeric>
-#include <cblas.h>
 #include <chrono>
 
+#ifdef USE_MKL
+    #include <mkl.h>
+    #include <mkl_cblas.h>
+#else
+    #include <cblas.h>
+#endif
+
 #ifdef _OPENMP
-#include <omp.h>
+    #include <omp.h>
 #endif
 
 namespace po = boost::program_options;
@@ -116,6 +122,7 @@ int main(int argc, char **argv) {
         std::cerr << "\nTime used: " << duration.count() << " milliseconds\n";
     }
 
+    std::cout << "\n";
     for (auto i = 0; i < rows; i++) {
         std::cout << std::setprecision(10) << x[i] << "\n";
     }
