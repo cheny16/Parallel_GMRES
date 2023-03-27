@@ -18,15 +18,22 @@ if (NOT OpenMP_FOUND)
     message(FATAL_ERROR "[Error]: OpenMP required.\n")
 endif()
 
-# Find BLAS-LAPACK
+# Find CBLAS
+option(USE_MKL "Use Intel MKL as the BLAS implementation" ON)
+
+if(USE_MKL)
+    set(BLA_VENDOR Intel10_64lp)
+    add_definitions(-DUSE_MKL)
+    message(STATUS "Using Intel MKL")
+else()
+    set(BLA_VENDOR OpenBLAS)
+    message(STATUS "Using OpenBLAS")
+endif()
+
 find_package(BLAS)
-find_package(LAPACK)
-if(LAPACK_FOUND AND BLAS_FOUND)
-    find_path(BLAS_INCLUDE_DIRS cblas.h
-                                /usr/include
-                                /usr/local/include
-                                $ENV{CMAKE_PREFIX_PATH})
-    message(STATUS BLAS found: ${BLAS_INCLUDE_DIRS})
+
+if(USE_MKL)
+    include_directories(${MKLROOT}/include)
 endif()
 
 # include
@@ -35,7 +42,7 @@ target_include_directories(Givens PRIVATE ${HEADER_DIR} ${BLAS_INCLUDE_DIRS})
 target_include_directories(GMRES  PRIVATE ${HEADER_DIR} ${BLAS_INCLUDE_DIRS})
 
 # link
-target_link_libraries(GMRES PUBLIC Matrix Givens PRIVATE m ${OpenMP_CXX_FLAGS})
+target_link_libraries(GMRES PUBLIC Matrix Givens PRIVATE m ${OpenMP_CXX_FLAGS} ${BLAS_LIBRARIES})
 
 # dependencies
 add_dependencies(GMRES Matrix Givens)
