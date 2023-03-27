@@ -1,4 +1,5 @@
 # GMRES - MATLAB version
+It is just a sequatial MATLAB implementation of GMRES algorithm for solving $Ax=b$, as a comparison with the C++ version.
 
 ## Usage
 
