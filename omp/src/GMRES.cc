@@ -21,9 +21,8 @@
     #include <cblas.h>
 #endif
 
-#ifdef _OPENMP
-    #include <omp.h>
-#endif
+#include <omp.h>
+
 
 /**
  * @brief Arnoldi iterations (Modified Gram-Schmidt)
@@ -40,11 +39,9 @@ void Arnoldi(const Matrix A, Matrix v, Matrix H,
     // Calculate w = A * v[iter] - Krylov vector
     Vector w = AllocVector(rows);
     cblas_dgemv(CblasRowMajor, CblasNoTrans, rows, rows, 1.0, A, rows, &v[iter * rows], 1, 0.0, w, 1);
+    int i;
 
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif
-    for (auto i = 0; i <= iter; i++) {
+    for (i = 0; i <= iter; i++) {
         double dot = cblas_ddot(rows, w, 1, &v[i * rows], 1);
         H[i * maxiter + iter] = dot;
         cblas_daxpy(rows, -dot, &v[i * rows], 1, w, 1);
@@ -79,14 +76,14 @@ void SolveLSP(const Matrix H, const Matrix v, const Vector e, Vector x,
     // The last line
     y[iter] = e[iter] / H[iter * maxiter + iter];
     // The rest lines
-    for (auto i = iter - 1; i >= 0; i--) {
+    int i;
+    #pragma omp parallel for
+    for (i = iter - 1; i >= 0; i--) {
         double sum = 0.0;
+        int j;
 
-#ifdef _OPENMP
-        // #pragma omp parallel for reduction (+:sum)
-        #pragma omp simd reduction (+:sum)
-#endif 
-        for (auto j = i + 1; j <= iter; j++) {
+        #pragma omp parallel for reduction (+:sum)
+        for (j = i + 1; j <= iter; j++) {
             sum += H[i * maxiter + j] * y[j];
         }
         y[i] = (e[i] - sum) / H[i * maxiter + i];
@@ -112,10 +109,10 @@ void CalResidualVec(const Matrix A, const Vector b, const Vector x, Vector r, co
     cblas_dgemv(CblasRowMajor, CblasNoTrans, rows, rows, -1.0, A, rows, x, 1, 0.0, r, 1);
     // 2nd: r = r + b
     // cblas_daxpy(rows, 1.0, b, 1, r, 1);
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif    
-    for (auto i = 0; i < rows; i++) {
+    int i;
+
+    #pragma omp parallel for simd
+    for (i = 0; i < rows; i++) {
         // r[i] = fabs(b[i] - r[i]);
         r[i] = b[i] - r[i];
     }

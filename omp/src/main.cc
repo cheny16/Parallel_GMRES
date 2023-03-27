@@ -18,16 +18,13 @@
 #include <chrono>
 #include <numeric>
 #include <chrono>
+#include <omp.h>
 
 #ifdef USE_MKL
     #include <mkl.h>
     #include <mkl_cblas.h>
 #else
     #include <cblas.h>
-#endif
-
-#ifdef _OPENMP
-    #include <omp.h>
 #endif
 
 namespace po = boost::program_options;
@@ -78,12 +75,10 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-#ifdef _OPENMP
     #pragma omp parallel
     if (omp_get_thread_num() == 0 && verbose) {
         std::cerr << "Number of threads is: " << omp_get_num_threads() << "\n";
     }
-#endif
     
     int rows;               /* Rows */
     int cols;               /* Cols */
@@ -103,9 +98,7 @@ int main(int argc, char **argv) {
     Vector b0= AllocVector(rows);
     Vector x = AllocVector(rows);     /* Initial guess of X (x0) */
 
-#ifdef _OPENMP
     #pragma omp parallel for simd
-#endif
     for (auto i = 0; i < rows; i++) {
         b0[i] = 1.0f;
     }

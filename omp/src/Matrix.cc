@@ -14,10 +14,7 @@
 #include <iomanip>
 #include <cblas.h>
 #include <stdexcept>
-
-#ifdef _OPENMP
 #include <omp.h>
-#endif
 
 /**
  * @brief Allocate matrix
@@ -32,9 +29,8 @@ Matrix AllocMatrix(const int rows, const int cols) {
         std::cerr << "Error allocating matrix!\n";
         exit(EXIT_FAILURE);
     }
-#ifdef _OPENMP
+
     #pragma omp parallel for simd
-#endif
     for (auto i = 0; i < rows*cols; i++) {
         mat[i] = 0.0f;
     }
@@ -99,9 +95,8 @@ Matrix AllocVector(const int rows) {
         std::cerr << "Error allocating vector!\n";
         exit(EXIT_FAILURE);
     }
-#ifdef _OPENMP
+
     #pragma omp parallel for simd
-#endif
     for (auto i = 0; i < rows; i++) {
         vec[i] = 0.0f;
     }
