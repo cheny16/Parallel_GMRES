@@ -14,16 +14,22 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
 
-# Find BLAS-LAPACK
+# Find CBLAS
+option(USE_MKL "Use Intel MKL as the BLAS implementation" OFF)
+
+if(USE_MKL)
+    set(BLA_VENDOR Intel10_64lp)
+    add_definitions(-DUSE_MKL)
+    message(STATUS "Using Intel MKL")
+else()
+    set(BLA_VENDOR OpenBLAS)
+    message(STATUS "Using OpenBLAS")
+endif()
+
 find_package(BLAS)
-find_package(LAPACK)
-if(LAPACK_FOUND AND BLAS_FOUND)
-    set(lapackblas_libraries ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-    find_path(BLAS_INCLUDE_DIRS cblas.h
-                                /usr/include
-                                /usr/local/include
-                                $ENV{CMAKE_PREFIX_PATH})
-    message(STATUS BLAS found: ${BLAS_INCLUDE_DIRS})
+
+if(USE_MKL)
+    include_directories(${MKLROOT}/include)
 endif()
 
 SET(Boost_USE_STATIC_LIBS OFF)
@@ -52,7 +58,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                         GMRES 
                         Boost::program_options 
                         ${OpenMP_CXX_FLAGS} 
-                        ${lapackblas_libraries})
+                        ${BLAS_LIBRARIES})
 
 # Add modules
 link_directories(${SOURCE_DIR})
