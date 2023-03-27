@@ -15,6 +15,7 @@ This is an implementation of OpenMP shared memory parallel GMRES for solving spa
 $ git clone https://github.com/cheny16/Parallel_GMRES.git
 $ cd Parallel_GMRES
 $ git checkout main
+$ cd omp
 $ mkdir build && cd build
 # if use MKL (default: OFF)
 $ cmake .. -D USE_MKL=ON
