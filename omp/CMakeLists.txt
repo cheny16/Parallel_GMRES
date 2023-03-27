@@ -43,7 +43,7 @@ endif()
 
 # Find MPI for parallel program
 find_package(OpenMP REQUIRED)
-if (NOT OpenMP_FOUND)
+if (NOT OpenMP_CXX_FOUND)
     message(FATAL_ERROR "[Error]: OpenMP required.\n")
 endif()
 
@@ -57,7 +57,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                         Givens 
                         GMRES 
                         Boost::program_options 
-                        ${OpenMP_CXX_FLAGS} 
+                        OpenMP::OpenMP_CXX 
                         ${BLAS_LIBRARIES})
 
 # Add modules
