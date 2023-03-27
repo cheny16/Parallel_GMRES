@@ -35,7 +35,9 @@ For example:
 
 Apply `gmres` on `saylr1.mtx` matrix, with `tolerance` is `0.00001`, and `maxiter` is `200`, to show details and timing, and output the results to `saylr1.out`:
 
-`./gmres --i ../datas/saylr1.mtx --tol 0.00001 --m 200 --verbose --timing > saylr1.out`
+```bash
+./gmres --i ../datas/saylr1.mtx --tol 0.00001 --m 200 --verbose --timing > saylr1.out
+```
 
 ## Modules / Routines
 - Matrix
