@@ -14,7 +14,7 @@ add_library(GMRES  GMRES.cc  ${HEADER_DIR}/GMRES.hpp)
 
 # Find OpenMP
 find_package(OpenMP REQUIRED)
-if (NOT OpenMP_FOUND)
+if (NOT OpenMP_CXX_FOUND)
     message(FATAL_ERROR "[Error]: OpenMP required.\n")
 endif()
 
@@ -42,7 +42,8 @@ target_include_directories(Givens PRIVATE ${HEADER_DIR} ${BLAS_INCLUDE_DIRS})
 target_include_directories(GMRES  PRIVATE ${HEADER_DIR} ${BLAS_INCLUDE_DIRS})
 
 # link
-target_link_libraries(GMRES PUBLIC Matrix Givens PRIVATE m ${OpenMP_CXX_FLAGS} ${BLAS_LIBRARIES})
+target_link_libraries(GMRES PUBLIC Matrix Givens m OpenMP::OpenMP_CXX ${BLAS_LIBRARIES})
+target_link_libraries(Matrix PUBLIC OpenMP::OpenMP_CXX)
 
 # dependencies
 add_dependencies(GMRES Matrix Givens)
